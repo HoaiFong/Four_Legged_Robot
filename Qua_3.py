@@ -205,9 +205,9 @@ def getRollPitch_MPU():
 self balancing test 
 '''
 def PID(setpoint,current_value):
-    kp=0.125
-    ki=0
-    kd=0
+    kp=0.125 #0.15
+    ki=0.01 #0.02
+    kd=0.0001 #0.002
     sample_time = 0.02
     err = setpoint - current_value # roll,pitch angle 
     err_p =0 
@@ -317,68 +317,60 @@ pre_Pitch_RPY = 0
 pre_Yaw_RPY = 0
 def Roll_Pitch_Yaw(roll, pitch, yaw):
     global pre_Roll_RPY, pre_Pitch_RPY, pre_Yaw_RPY
-    
-    if(roll<=1 and roll>=-1):
-        LEFT_Inverse_Kinematics(Front, 0,l1,RH)
-        RIGHT_Inverse_Kinematics(Front, 0,-l1,RH)
-        LEFT_Inverse_Kinematics(Rear, 0,l1,RH)
-        RIGHT_Inverse_Kinematics(Rear, 0,-l1,RH)
-        pre_Roll_RPY = 0
-    else: 
-        Roll_RPY = roll*np.pi/180
-        roll = Roll_RPY - pre_Roll_RPY
-        pre_Roll_RPY = Roll_RPY
+
+    Roll_RPY = roll*np.pi/180
+    roll = Roll_RPY - pre_Roll_RPY
+    pre_Roll_RPY = Roll_RPY
             
-        # if(pitch<=1 and pitch>=-1):
-        #     pitch = 1
-        Pitch_RPY = pitch*np.pi/180
-        pitch = Pitch_RPY - pre_Pitch_RPY
-        pre_Pitch_RPY = Pitch_RPY
-        
-        # if(yaw<=1 and yaw>=-1):
-        #     yaw = 1
-        Yaw_RPY = yaw*np.pi/180
-        yaw = Yaw_RPY - pre_Yaw_RPY
-        pre_Yaw_RPY = Yaw_RPY  
-        
-        
-        pos_FL = np.array([[posFL[0]],[posFL[1]],[posFL[2]]]) + g_FL
-        pos_FR = np.array([[posFR[0]],[posFR[1]],[posFR[2]]]) + g_FR
-        pos_RL = np.array([[posRL[0]],[posRL[1]],[posRL[2]]]) + g_RL
-        pos_RR = np.array([[posRR[0]],[posRR[1]],[posRR[2]]]) + g_RR
-        
-        rotationX = np.array([  [1,     0,               0              ],
-                                [0,     np.cos(-roll),   -np.sin(-roll) ],
-                                [0,     np.sin(-roll),   np.cos(-roll)  ]])
+    # if(pitch<=1 and pitch>=-1):
+    #     pitch = 1
+    Pitch_RPY = pitch*np.pi/180
+    pitch = Pitch_RPY - pre_Pitch_RPY
+    pre_Pitch_RPY = Pitch_RPY
+    
+    # if(yaw<=1 and yaw>=-1):
+    #     yaw = 1
+    Yaw_RPY = yaw*np.pi/180
+    yaw = Yaw_RPY - pre_Yaw_RPY
+    pre_Yaw_RPY = Yaw_RPY  
+    
+    pos_FL = np.array([[posFL[0]],[posFL[1]],[posFL[2]]]) + g_FL
+    pos_FR = np.array([[posFR[0]],[posFR[1]],[posFR[2]]]) + g_FR
+    pos_RL = np.array([[posRL[0]],[posRL[1]],[posRL[2]]]) + g_RL
+    pos_RR = np.array([[posRR[0]],[posRR[1]],[posRR[2]]]) + g_RR
+    
+    rotationX = np.array([  [1,     0,               0              ],
+                            [0,     np.cos(-roll),   -np.sin(-roll) ],
+                            [0,     np.sin(-roll),   np.cos(-roll)  ]])
 
-        rotationY = np.array([  [np.cos(-pitch),    0,  np.sin(-pitch)  ],
-                                [0,                 1,  0               ],
-                                [-np.sin(-pitch),   0,  np.cos(-pitch)  ]])
-        
-        rotationZ = np.array([  [np.cos(-yaw),  -np.sin(-yaw),  0   ],
-                                [np.sin(-yaw),  np.cos(-yaw),   0   ],
-                                [0,             0,              1   ]])
+    rotationY = np.array([  [np.cos(-pitch),    0,  np.sin(-pitch)  ],
+                            [0,                 1,  0               ],
+                            [-np.sin(-pitch),   0,  np.cos(-pitch)  ]])
+    
+    rotationZ = np.array([  [np.cos(-yaw),  -np.sin(-yaw),  0   ],
+                            [np.sin(-yaw),  np.cos(-yaw),   0   ],
+                            [0,             0,              1   ]])
 
-        
-        new_posFL = rotationX.dot(pos_FL) 
-        new_posFR = rotationX.dot(pos_FR) 
-        new_posRL = rotationX.dot(pos_RL) 
-        new_posRR = rotationX.dot(pos_RR) 
-        
-        new_posFL = rotationY.dot(new_posFL) - g_FL
-        new_posFR = rotationY.dot(new_posFR) - g_FR
-        new_posRL = rotationY.dot(new_posRL) - g_RL
-        new_posRR = rotationY.dot(new_posRR) - g_RR
-        
-        print(new_posFL[0,0],new_posFL[1,0],new_posFL[2,0])
-        print(new_posFR[0,0],new_posFR[1,0],new_posFR[2,0])
-        print(new_posRL[0,0],new_posRL[1,0],new_posRL[2,0])
-        print(new_posRR[0,0],new_posRR[1,0],new_posRR[2,0])
+    
+    new_posFL = rotationX.dot(pos_FL) 
+    new_posFR = rotationX.dot(pos_FR) 
+    new_posRL = rotationX.dot(pos_RL) 
+    new_posRR = rotationX.dot(pos_RR) 
+    
+    new_posFL = rotationY.dot(new_posFL) - g_FL
+    new_posFR = rotationY.dot(new_posFR) - g_FR
+    new_posRL = rotationY.dot(new_posRL) - g_RL
+    new_posRR = rotationY.dot(new_posRR) - g_RR
+    
+    print(new_posFL[0,0],new_posFL[1,0],new_posFL[2,0])
+    print(new_posFR[0,0],new_posFR[1,0],new_posFR[2,0])
+    print(new_posRL[0,0],new_posRL[1,0],new_posRL[2,0])
+    print(new_posRR[0,0],new_posRR[1,0],new_posRR[2,0])
 
-        LEFT_Inverse_Kinematics(Front, new_posFL[0,0], new_posFL[1,0], new_posFL[2,0])
-        RIGHT_Inverse_Kinematics(Front, new_posFR[0,0], new_posFR[1,0], new_posFR[2,0])
-        LEFT_Inverse_Kinematics(Rear, new_posRL[0,0], new_posRL[1,0], new_posRL[2,0])
-        RIGHT_Inverse_Kinematics(Rear, new_posRR[0,0], new_posRR[1,0], new_posRR[2,0])
+    LEFT_Inverse_Kinematics(Front, new_posFL[0,0], new_posFL[1,0], new_posFL[2,0])
+    RIGHT_Inverse_Kinematics(Front, new_posFR[0,0], new_posFR[1,0], new_posFR[2,0])
+    LEFT_Inverse_Kinematics(Rear, new_posRL[0,0], new_posRL[1,0], new_posRL[2,0])
+    RIGHT_Inverse_Kinematics(Rear, new_posRR[0,0], new_posRR[1,0], new_posRR[2,0])
 
 def Trot_gait():
     pass    
@@ -582,7 +574,7 @@ pwm.set_pwm_freq(60)
 # Move servo on channel O between extremes.
 # Calib()
 initial_position()
-# getRollPitch_MPU()
+getRollPitch_MPU()
 
 ## walk forward
 # all_Move(25, 0, 0, 0.01)
@@ -618,11 +610,10 @@ initial_position()
 # endWalk(-60, 0, 0.01) 
 # all_Move(25, 0, 0, 0.01)
 
-while True:
+# while True:
     
-    r_oll = input('Nhap roll: ')
-    Roll_Pitch_Yaw(r_oll, 0, 0)
-    
+    # angle_input = input('Nhap pitch: ')
+    # Roll_Pitch_Yaw(0, angle_input, 0)
     
     # startWalk(0,-40,0.01)
     # time.sleep(1)
